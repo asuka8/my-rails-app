@@ -1,0 +1,18 @@
+<div style="max-width: 800px; margin: 2rem auto; padding: 1rem;">
+  <h2>ユーザー一覧</h2>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
+    <% @users.each do |user| %>
+      <div style="border: 1px solid #ddd; padding: 1rem; border-radius: 8px; text-align: center;">
+        <% if user.profile_image.attached? %>
+          <%= image_tag user.profile_image, style: "width: 80px; height: 80px; border-radius: 50%; object-fit: cover;" %>
+        <% else %>
+          <div style="width: 80px; height: 80px; border-radius: 50%; background-color: #eee; margin: 0 auto; line-height: 80px; color: #999;">No Image</div>
+        <% end %>
+
+        <h3 style="margin: 10px 0;"><%= user.nickname.presence || "ななしさん" %></h3>
+        <%= link_to "プロフィールを見る", user_path(user), style: "color: #007bff; text-decoration: none; font-size: 0.9rem;" %>
+      </div>
+    <% end %>
+  </div>
+</div>

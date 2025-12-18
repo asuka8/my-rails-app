@@ -1,0 +1,35 @@
+<div style="max-width: 600px; margin: 2rem auto; padding: 2rem; border: 1px solid #ddd; border-radius: 8px; font-family: sans-serif;">
+  <div style="text-align: center; margin-bottom: 2rem;">
+    <% if @user.profile_image.attached? %>
+      <%= image_tag @user.profile_image, style: "width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;" %>
+    <% else %>
+      <div style="width: 150px; height: 150px; border-radius: 50%; background-color: #eee; line-height: 150px; margin: 0 auto; color: #999;">
+        No Image
+      </div>
+    <% end %>
+
+    <h2 style="margin-top: 1rem;">
+      <%= @user.nickname.presence || "ななしさん" %>
+    </h2>
+    <p style="color: #666; font-size: 0.9rem;"><%= @user.email %></p>
+  </div>
+  <div style="text-align: center; margin-bottom: 1rem;">
+  <% if @user != current_user %>
+    <button style="padding: 8px 16px; background-color: #28a745; color: white; border: none; border-radius: 20px; cursor: pointer;">
+      フォローする
+    </button>
+  <% end %>
+  </div>
+
+  <div style="background-color: #f9f9f9; padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
+    <h3 style="font-size: 1rem; border-bottom: 1px solid #ccc; padding-bottom: 5px;">自己紹介</h3>
+    <p style="white-space: pre-wrap;"><%= @user.introduction.presence || "自己紹介はまだありません。" %></p>
+  </div>
+
+  <div style="text-align: center;">
+    <% if @user == current_user %>
+      <%= link_to "プロフィールを編集する", edit_user_path(@user), style: "display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;" %>
+    <% end %>
+    <%= link_to "ホームに戻る", root_path, style: "margin-left: 15px; color: #666;" %>
+  </div>
+</div>

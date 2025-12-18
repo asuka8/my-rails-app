@@ -1,0 +1,33 @@
+<div style="max-width: 400px; margin: 2rem auto; padding: 2rem; border: 1px solid #ddd; border-radius: 8px; font-family: sans-serif;">
+  <h2 style="text-align: center;">ログイン</h2>
+
+  <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+    <div style="margin-bottom: 1rem;">
+      <%= f.label :email, "Eメール" %><br />
+      <%= f.email_field :email, autofocus: true, autocomplete: "email", style: "width: 100%; padding: 8px; box-sizing: border-box;" %>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <%= f.label :password, "パスワード" %><br />
+      <%= f.password_field :password, autocomplete: "current-password", style: "width: 100%; padding: 8px; box-sizing: border-box;" %>
+    </div>
+
+    <% if devise_mapping.rememberable? %>
+      <div style="margin-bottom: 1rem;">
+        <%= f.check_box :remember_me %>
+        <%= f.label :remember_me, "ログイン状態を保持する" %>
+      </div>
+    <% end %>
+
+    <div>
+      <%= f.submit "ログイン", style: "width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;" %>
+    </div>
+  <% end %>
+
+  <hr style="margin: 1.5rem 0;">
+
+  <div style="text-align: center; font-size: 0.9rem;">
+    <%= link_to "新規登録はこちら", new_user_registration_path %><br><br>
+    <%= link_to "パスワードを忘れた場合", new_user_password_path %>
+  </div>
+</div>

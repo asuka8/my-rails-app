@@ -1,0 +1,35 @@
+<div style="max-width: 400px; margin: 2rem auto; padding: 2rem; border: 1px solid #ddd; border-radius: 8px; font-family: sans-serif;">
+  <h2 style="text-align: center;">新規登録</h2>
+
+  <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+    <%= render "devise/shared/error_messages", resource: resource %>
+
+    <div style="margin-bottom: 1rem;">
+      <%= f.label :email, "Eメール" %><br />
+      <%= f.email_field :email, autofocus: true, autocomplete: "email", style: "width: 100%; padding: 8px; box-sizing: border-box;" %>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <%= f.label :password, "パスワード" %>
+      <% if @minimum_password_length %>
+        <small>(<%= @minimum_password_length %> 文字以上)</small>
+      <% end %><br />
+      <%= f.password_field :password, autocomplete: "new-password", style: "width: 100%; padding: 8px; box-sizing: border-box;" %>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <%= f.label :password_confirmation, "パスワード（確認用）" %><br />
+      <%= f.password_field :password_confirmation, autocomplete: "new-password", style: "width: 100%; padding: 8px; box-sizing: border-box;" %>
+    </div>
+
+    <div>
+      <%= f.submit "登録する", style: "width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;" %>
+    </div>
+  <% end %>
+
+  <hr style="margin: 1.5rem 0;">
+
+  <div style="text-align: center; font-size: 0.9rem;">
+    <%= link_to "すでにアカウントをお持ちの方（ログイン）", new_user_session_path %>
+  </div>
+</div>

@@ -1,0 +1,25 @@
+<div style="max-width: 400px; margin: 2rem auto; padding: 2rem; border: 1px solid #ddd; border-radius: 8px; font-family: sans-serif;">
+  <h2 style="text-align: center;">パスワードをお忘れですか？</h2>
+  <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 1.5rem;">
+    ご登録いただいたメールアドレスを入力してください。<br>パスワード再設定の案内をお送りします。
+  </p>
+
+  <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+    <%= render "devise/shared/error_messages", resource: resource %>
+
+    <div style="margin-bottom: 1.5rem;">
+      <%= f.label :email, "ご登録済みのEメール" %><br />
+      <%= f.email_field :email, autofocus: true, autocomplete: "email", style: "width: 100%; padding: 8px; box-sizing: border-box; margin-top: 5px;" %>
+    </div>
+
+    <div>
+      <%= f.submit "パスワード再設定のメールを送る", style: "width: 100%; padding: 10px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;" %>
+    </div>
+  <% end %>
+
+  <hr style="margin: 1.5rem 0;">
+
+  <div style="text-align: center; font-size: 0.9rem;">
+    <%= link_to "ログイン画面に戻る", new_user_session_path %>
+  </div>
+</div>
