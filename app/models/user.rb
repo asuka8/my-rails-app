@@ -4,6 +4,7 @@ class User < ApplicationRecord
 
   has_one_attached :profile_image
   has_many :posts, dependent: :destroy
+  has_many :likes, dependent: :destroy
 
   # --- ここからフォロー機能に必要な定義 ---
   # フォローしている人との繋がり

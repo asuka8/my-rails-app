@@ -13,6 +13,8 @@ Rails.application.routes.draw do
     member do
       get :destroy
     end
+    # これを追記
+    resource :likes, only: [:create, :destroy]
   end
 
   # 3. ユーザー関連（詳細画面などは一番最後に書く）
