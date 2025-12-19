@@ -6,7 +6,13 @@ class UsersController < ApplicationController
   end
 
   def show
+    # IDが数字ではない（sign_outなど）場合は、処理を中断してホームへ飛ばす
+    if params[:id] == "sign_out" || params[:id].to_i == 0 && params[:id] != "0"
+      redirect_to root_path and return
+    end
+
     @user = User.find(params[:id])
+    @posts = @user.posts.order(created_at: :desc)
   end
 
   def edit

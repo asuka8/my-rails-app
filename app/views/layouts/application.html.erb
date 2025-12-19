@@ -1,3 +1,13 @@
+<head>
+  <title>SNS App</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <%# ここから下の3行が重要です %>
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
+</head>
 <body>
   <header style="background-color: #f8f9fa; padding: 1rem; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center;">
   <div>
@@ -10,8 +20,8 @@
     <%= link_to "ホーム", root_path, style: "margin-right: 10px;" %>
     <%= link_to "プロフィール", user_path(current_user), style: "margin-right: 10px;" %>
     <%= link_to "ユーザーを探す", users_path, style: "margin-right: 10px;" %>
-    <%= link_to "ログアウト", destroy_user_session_path, data: { turbo_method: :delete }, style: "color: red;" %>
-  <% else %>
+    <%= link_to "ログアウト", logout_path, style: "color: red; margin-left: 10px;" %>
+    <% else %>
     <% unless current_page?(new_user_session_path) || current_page?(new_user_registration_path) || current_page?(new_user_password_path) %>
       <%= link_to "ログイン", new_user_session_path %>
       <%= link_to "新規登録", new_user_registration_path %>
