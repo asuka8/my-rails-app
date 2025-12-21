@@ -1,0 +1,14 @@
+<div style="max-width: 600px; margin: 2rem auto; padding: 2rem; border: 1px solid #ddd; border-radius: 8px;">
+  <h2>通知</h2>
+  <% if @notifications.any? %>
+    <% @notifications.each do |notification| %>
+      <div style="padding: 15px; border-bottom: 1px solid #eee;">
+        <strong><%= notification.visitor.nickname.presence || notification.visitor.email %></strong>さんが
+        <%= link_to "あなたの投稿", post_path(notification.post), style: "color: #007bff;" %>にいいねしました。
+        <span style="color: #999; font-size: 0.8rem; margin-left: 10px;"><%= notification.created_at.strftime("%m/%d %H:%M") %></span>
+      </div>
+    <% end %>
+  <% else %>
+    <p>通知はありません。</p>
+  <% end %>
+</div>

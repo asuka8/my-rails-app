@@ -1,5 +1,6 @@
 class Post < ApplicationRecord
   belongs_to :user
+  has_one_attached :image
   validates :content, presence: true, length: { maximum: 140 } # 140文字制限
   default_scope -> { order(created_at: :desc) } # 新しい投稿を上にする
   has_many :likes, dependent: :destroy

@@ -20,6 +20,7 @@
     <%= link_to "ホーム", root_path, style: "margin-right: 10px;" %>
     <%= link_to "プロフィール", user_path(current_user), style: "margin-right: 10px;" %>
     <%= link_to "ユーザーを探す", users_path, style: "margin-right: 10px;" %>
+    <%= link_to "通知", notifications_path, style: "margin-left: 15px;" %>
     <%= link_to "ログアウト", logout_path, style: "color: red; margin-left: 10px;" %>
     <% else %>
     <% unless current_page?(new_user_session_path) || current_page?(new_user_registration_path) || current_page?(new_user_password_path) %>

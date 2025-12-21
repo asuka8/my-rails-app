@@ -45,6 +45,13 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    params.require(:post).permit(:content)
+    # :image を追加
+    params.require(:post).permit(:content, :image)
   end
+
+  def liked_users
+    @post = Post.find(params[:id])
+    @users = @post.liked_users
+  end
+
 end

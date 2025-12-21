@@ -1,0 +1,11 @@
+<div style="max-width: 600px; margin: 2rem auto; padding: 2rem; border: 1px solid #ddd; border-radius: 8px;">
+  <h2>この投稿にいいねしたユーザー</h2>
+  <div style="margin-top: 1rem;">
+    <% @users.each do |user| %>
+      <div style="padding: 10px; border-bottom: 1px solid #eee;">
+        <%= link_to (user.nickname.presence || user.email), user_path(user), style: "text-decoration: none; color: #007bff;" %>
+      </div>
+    <% end %>
+  </div>
+  <%= link_to "戻る", root_path, style: "display: block; margin-top: 20px; color: #666;" %>
+</div>
