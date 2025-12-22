@@ -7,18 +7,22 @@ Rails.application.routes.draw do
   devise_for :users
   
   root "home#index"
+  # ルーム一覧用のルート
+  get 'rooms_index', to: 'rooms_index#index'
   
   # 2. 投稿関連
   resources :posts do
     member do
-      get :destroy
-      get :liked_users # これを追記
+      get :liked_users
     end
     resource :likes, only: [:create, :destroy]
+    resources :comments, only: [:create] # これを追記
   end
 
   # 通知一覧用のルート
   resources :notifications, only: :index
+  resources :messages, only: [:create]
+  resources :rooms, only: [:create, :show]
 
   # 3. ユーザー関連（詳細画面などは一番最後に書く）
   resources :users, only: [:index, :show, :edit, :update] do

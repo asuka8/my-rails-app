@@ -1,11 +1,12 @@
 class PostsController < ApplicationController
-  # セキュリティチェックを一時的に緩和して動作を安定させます
-  protect_from_forgery except: :destroy 
+  #protect_from_forgery except: :destroy 
   
   before_action :authenticate_user!
-  before_action :set_post, only: [:show, :edit, :update, :destroy]
+  # show, edit, update, destroy, liked_users の5つで @post を準備するように設定
+  before_action :set_post, only: [:show, :edit, :update, :destroy, :liked_users]
 
   def show
+    # 詳細画面ではコメントも表示するため、@post は set_post で取得済み
   end
 
   def create
@@ -30,9 +31,13 @@ class PostsController < ApplicationController
   end
 
   def destroy
-    # どんな方法でアクセスされても削除を実行
     @post.destroy
     redirect_to root_path, notice: "投稿を削除しました", status: :see_other
+  end
+
+  # --- ここが重要：いいねした人一覧 ---
+  def liked_users
+    @users = @post.liked_users
   end
 
   private
@@ -45,13 +50,6 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    # :image を追加
     params.require(:post).permit(:content, :image)
   end
-
-  def liked_users
-    @post = Post.find(params[:id])
-    @users = @post.liked_users
-  end
-
 end

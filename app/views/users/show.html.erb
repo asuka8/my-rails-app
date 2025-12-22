@@ -3,30 +3,32 @@
     <% if @user.profile_image.attached? %>
       <%= image_tag @user.profile_image, style: "width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;" %>
     <% else %>
-      <div style="width: 150px; height: 150px; border-radius: 50%; background-color: #eee; line-height: 150px; margin: 0 auto; color: #999;">
-        No Image
-      </div>
+      <div style="width: 150px; height: 150px; border-radius: 50%; background-color: #eee; line-height: 150px; margin: 0 auto; color: #999;">No Image</div>
     <% end %>
 
-    <h2 style="margin-top: 1rem;">
-      <%= @user.nickname.presence || "ななしさん" %>
-    </h2>
+    <h2 style="margin-top: 1rem;"><%= @user.nickname.presence || "ななしさん" %></h2>
     <p style="color: #666; font-size: 0.9rem;"><%= @user.email %></p>
   </div>
 
-  <%# フォローボタンの表示エリア %>
   <% unless current_user == @user %>
-    <div id="follow_form" style="text-align: center; margin: 10px 0;">
+    <div id="follow_form" style="text-align: center; margin-bottom: 20px;">
       <% if current_user.following?(@user) %>
-        <%= button_to "フォロー解除", user_relationships_path(@user), 
-                      method: :delete, 
-                      form: { data: { turbo: false } }, 
-                      style: "background-color: #ccc; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer;" %>
+        <%= button_to "フォロー解除", user_relationships_path(@user), method: :delete, form: { data: { turbo: false } }, style: "background-color: #ccc; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer;" %>
       <% else %>
-        <%= button_to "フォローする", user_relationships_path(@user), 
-                      method: :post, 
-                      form: { data: { turbo: false } }, 
-                      style: "background-color: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer;" %>
+        <%= button_to "フォローする", user_relationships_path(@user), method: :post, form: { data: { turbo: false } }, style: "background-color: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer;" %>
+      <% end %>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 20px;">
+      <% if @isRoom == true %>
+        <%= link_to "メッセージを送る", room_path(@roomId), style: "display: inline-block; padding: 8px 16px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 20px; text-decoration: none; color: #333;" %>
+      <% else %>
+        <%= form_with model: @room, local: true do |f| %>
+          <%= fields_for @entry do |e| %>
+            <%= e.hidden_field :user_id, value: @user.id %>
+          <% end %>
+          <%= f.submit "チャットを始める", style: "background-color: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer;" %>
+        <% end %>
       <% end %>
     </div>
   <% end %>

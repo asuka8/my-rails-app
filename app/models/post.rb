@@ -1,9 +1,13 @@
 class Post < ApplicationRecord
   belongs_to :user
   has_one_attached :image
-  validates :content, presence: true, length: { maximum: 140 } # 140文字制限
-  default_scope -> { order(created_at: :desc) } # 新しい投稿を上にする
+
+  validates :content, presence: true, length: { maximum: 140 }
+
   has_many :likes, dependent: :destroy
-  # 投稿を「いいね」しているユーザーを直接取得できるようにする
   has_many :liked_users, through: :likes, source: :user
+  has_many :comments, dependent: :destroy
+  
+  # これを追記：投稿が消えたら通知も消す
+  has_many :notifications, dependent: :destroy
 end

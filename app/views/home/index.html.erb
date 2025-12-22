@@ -1,5 +1,5 @@
 <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: sans-serif;">
-  <h1 style="text-align: center; color: #333;">投稿</h1>
+  <h1 style="text-align: center; color: #333;">タイムライン</h1>
 
   <div style="margin-bottom: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: #fdfdfd;">
     <%= form_with model: @post, local: true do |f| %>
@@ -50,8 +50,9 @@
 
           <div style="display: flex; align-items: center; gap: 20px; margin-top: 10px;">
             
-            <% if post.user != current_user %>
-              <div style="display: flex; align-items: center; gap: 5px;">
+            <%# 1. いいねセクション %>
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <% if post.user != current_user %>
                 <% if post.likes.find_by(user_id: current_user.id) %>
                   <%= button_to post_likes_path(post), method: :delete, form: { data: { turbo: false } }, style: "background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0;" do %>
                     <span style="color: #ff4d4d;">❤️</span>
@@ -61,19 +62,24 @@
                     <span style="color: #ccc;">🤍</span>
                   <% end %>
                 <% end %>
-                <%= link_to liked_users_post_path(post), style: "text-decoration: none; color: #666; font-size: 0.9rem;" do %>
-                  <%= post.likes.count %>
-                <% end %>
-              </div>
-            <% else %>
-              <div style="display: flex; align-items: center; gap: 5px;">
+              <% else %>
                 <span style="font-size: 1.1rem;">❤️</span>
-                <%= link_to liked_users_post_path(post), style: "text-decoration: none; color: #666; font-size: 0.9rem;" do %>
-                  <%= post.likes.count %>
-                <% end %>
-              </div>
-            <% end %>
+              <% end %>
 
+              <%= link_to liked_users_post_path(post), style: "text-decoration: none; color: #666; font-size: 0.9rem;" do %>
+                <%= post.likes.count %>
+              <% end %>
+            </div>
+
+            <%# 2. コメント詳細画面へのリンク %>
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <%= link_to post_path(post), style: "text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; gap: 3px;" do %>
+                <span style="font-size: 1.1rem;">💬</span>
+                <span style="color: #666;"><%= post.comments.count %></span>
+              <% end %>
+            </div>
+
+            <%# 3. 編集ボタン（自分の投稿のみ。削除ボタンはここから除外しました） %>
             <% if post.user == current_user %>
               <%= link_to "編集", edit_post_path(post), style: "font-size: 0.8rem; color: #007bff; text-decoration: none;" %>
             <% end %>
