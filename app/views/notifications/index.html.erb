@@ -1,11 +1,16 @@
-<div style="max-width: 600px; margin: 2rem auto; padding: 2rem; border: 1px solid #ddd; border-radius: 8px; font-family: sans-serif;">
-  <h2 style="text-align: center; color: #333; margin-bottom: 2rem;">通知一覧</h2>
+<div style="max-width: 600px; margin: 2rem auto; padding: 2rem; border: 1px solid #ddd; border-radius: 8px; font-family: sans-serif; background-color: #fff;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
+    <h2 style="margin: 0; color: #333;">通知一覧</h2>
+    <%= link_to "ホームに戻る", root_path, style: "text-decoration: none; color: #007bff; font-size: 0.9rem;" %>
+  </div>
 
   <% if @notifications.any? %>
     <% @notifications.each do |notification| %>
-      <div style="padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px;">
+      <%# 未読（checked: false）のものは背景色を変えて目立たせる %>
+      <div style="padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px; 
+                  background-color: <%= notification.checked ? 'transparent' : '#f0f7ff' %>;">
         
-        <div style="width: 40px; height: 40px; border-radius: 50%; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+        <div style="width: 45px; height: 45px; border-radius: 50%; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; border: 1px solid #eee;">
           <% if notification.action == 'like' %>
             ❤️
           <% elsif notification.action == 'message' %>
@@ -14,42 +19,39 @@
         </div>
 
         <div style="flex: 1;">
-          <strong>
-            <%= notification.visitor.nickname.presence || notification.visitor.email %>
-          </strong> さんが
+          <div style="margin-bottom: 3px;">
+            <strong>
+              <%= notification.visitor.nickname.presence || notification.visitor.email %>
+            </strong> さんが
 
-          <% if notification.action == 'like' %>
-            <%# いいね通知の処理 %>
-            <% if notification.post.present? %>
-              <%= link_to "あなたの投稿", post_path(notification.post), style: "color: #007bff; text-decoration: none; font-weight: bold;" %>
-            <% else %>
-              <span style="color: #999;">（削除された投稿）</span>
+            <% if notification.action == 'like' %>
+              <% if notification.post.present? %>
+                <%= link_to "あなたの投稿", post_path(notification.post), style: "color: #007bff; text-decoration: none; font-weight: bold;" %>
+              <% else %>
+                <span style="color: #999;">（削除された投稿）</span>
+              <% end %>
+              にいいねしました。
+
+            <% elsif notification.action == 'message' %>
+              <%= link_to "ダイレクトメッセージ", rooms_index_path, style: "color: #28a745; text-decoration: none; font-weight: bold;" %>
+              を送りました。
             <% end %>
-            にいいねしました。
+          </div>
 
-          <% elsif notification.action == 'message' %>
-            <%# メッセージ通知の処理 %>
-            <%= link_to "ダイレクトメッセージ", rooms_index_path, style: "color: #28a745; text-decoration: none; font-weight: bold;" %>
-            を送りました。
-          <% end %>
-
-          <div style="color: #999; font-size: 0.8rem; margin-top: 5px;">
+          <div style="color: #999; font-size: 0.8rem;">
             <%= notification.created_at.strftime("%Y/%m/%d %H:%M") %>
           </div>
         </div>
 
-        <%# 未読・既読の印（オプション） %>
-        <%# 未読(checkedがfalse)の時だけ赤い丸を表示 %>
-        <% unless notification.checked %>
-          <div style="width: 8px; height: 8px; background-color: #ff4d4d; border-radius: 50%;"></div>
+        <%# checked が false の場合のみ赤い丸を表示 %>
+        <% if notification.checked == false %>
+          <div style="width: 10px; height: 10px; background-color: #ff4d4d; border-radius: 50%;" title="新規通知"></div>
         <% end %>
       </div>
     <% end %>
   <% else %>
-    <p style="text-align: center; color: #999; padding: 20px;">まだ通知はありません。</p>
+    <div style="text-align: center; padding: 50px 0; color: #999;">
+      <p>新しい通知はありません。</p>
+    </div>
   <% end %>
-
-  <div style="text-align: center; margin-top: 2rem;">
-    <%= link_to "ホームに戻る", root_path, style: "color: #666; text-decoration: none; font-size: 0.9rem;" %>
-  </div>
 </div>

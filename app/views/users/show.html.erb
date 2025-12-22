@@ -1,47 +1,66 @@
-<div style="max-width: 600px; margin: 2rem auto; padding: 2rem; border: 1px solid #ddd; border-radius: 8px; font-family: sans-serif;">
-  <div style="text-align: center; margin-bottom: 2rem;">
-    <% if @user.profile_image.attached? %>
-      <%= image_tag @user.profile_image, style: "width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;" %>
-    <% else %>
-      <div style="width: 150px; height: 150px; border-radius: 50%; background-color: #eee; line-height: 150px; margin: 0 auto; color: #999;">No Image</div>
-    <% end %>
+<div style="max-width: 600px; margin: 2rem auto; padding: 0 20px;">
+  <div style="background: white; border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+    
+    <div style="height: 120px; background: linear-gradient(to right, #e1e8ed, #f7f9f9);"></div>
 
-    <h2 style="margin-top: 1rem;"><%= @user.nickname.presence || "ななしさん" %></h2>
-    <p style="color: #666; font-size: 0.9rem;"><%= @user.email %></p>
+    <div style="padding: 0 20px 20px; position: relative; margin-top: -60px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px;">
+        <% if @user.profile_image.attached? %>
+          <%= image_tag @user.profile_image, style: "width: 120px; height: 120px; border-radius: 50%; border: 4px solid white; object-fit: cover; background: white;" %>
+        <% else %>
+          <div style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid white; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 3rem;">👤</div>
+        <% end %>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+          <% if @user == current_user %>
+            <%= link_to "プロフィール編集", edit_user_path(@user), style: "border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 16px; border-radius: 99px; text-decoration: none; font-weight: bold; font-size: 0.9rem;" %>
+            <%# --- ここにログアウトボタンを設置 --- %>
+            <%= link_to "ログアウト", logout_path, data: { turbo_method: :get }, style: "border: 1px solid #ffdada; color: var(--danger-color); padding: 8px 16px; border-radius: 99px; text-decoration: none; font-weight: bold; font-size: 0.9rem; background: #fff5f5;" %>
+          <% else %>
+            <% if @isRoom %>
+              <%= link_to "✉️", room_path(@roomId), style: "border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 50%; text-decoration: none; font-size: 1.1rem;" %>
+            <% else %>
+              <%= form_with model: @room, local: true, style: "display: inline;" do |f| %>
+                <%= fields_for @entry do |e| %> <%= e.hidden_field :user_id, value: @user.id %> <% end %>
+                <%= f.button "✉️+", type: :submit, style: "background: white; border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 50%; cursor: pointer; font-size: 1.1rem;" %>
+              <% end %>
+            <% end %>
+            <% if current_user.following?(@user) %>
+              <%= button_to "フォロー解除", user_relationships_path(@user), method: :delete, form: {data: {turbo: false}}, style: "background: #0f1419; color: white; border: none; padding: 8px 16px; border-radius: 99px; cursor: pointer; font-weight: bold; font-size: 0.9rem;" %>
+            <% else %>
+              <%= button_to "フォロー", user_relationships_path(@user), method: :post, form: {data: {turbo: false}}, style: "background: var(--primary-color); color: white; border: none; padding: 8px 16px; border-radius: 99px; cursor: pointer; font-weight: bold; font-size: 0.9rem;" %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <h2 style="margin: 0; font-size: 1.4rem; font-weight: 900;"><%= @user.nickname.presence || @user.email %></h2>
+      <p style="color: var(--text-sub); margin: 4px 0 15px;"><%= @user.email %></p>
+      
+      <p style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px;">
+        <%= @user.introduction.presence || "自己紹介はまだありません。" %>
+      </p>
+
+      <div style="display: flex; gap: 20px; color: var(--text-sub); font-size: 0.9rem;">
+        <%= link_to following_user_path(@user), style: "text-decoration: none; color: inherit;" do %>
+          <span><strong><%= @user.following.count %></strong> フォロー中</span>
+        <% end %>
+        
+        <%= link_to followers_user_path(@user), style: "text-decoration: none; color: inherit;" do %>
+          <span><strong><%= @user.followers.count %></strong> フォロワー</span>
+        <% end %>
+      </div>
+    </div>
   </div>
 
-  <% unless current_user == @user %>
-    <div id="follow_form" style="text-align: center; margin-bottom: 20px;">
-      <% if current_user.following?(@user) %>
-        <%= button_to "フォロー解除", user_relationships_path(@user), method: :delete, form: { data: { turbo: false } }, style: "background-color: #ccc; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer;" %>
-      <% else %>
-        <%= button_to "フォローする", user_relationships_path(@user), method: :post, form: { data: { turbo: false } }, style: "background-color: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer;" %>
-      <% end %>
-    </div>
-
-    <div style="text-align: center; margin-bottom: 20px;">
-      <% if @isRoom == true %>
-        <%= link_to "メッセージを送る", room_path(@roomId), style: "display: inline-block; padding: 8px 16px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 20px; text-decoration: none; color: #333;" %>
-      <% else %>
-        <%= form_with model: @room, local: true do |f| %>
-          <%= fields_for @entry do |e| %>
-            <%= e.hidden_field :user_id, value: @user.id %>
-          <% end %>
-          <%= f.submit "チャットを始める", style: "background-color: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer;" %>
-        <% end %>
-      <% end %>
+  <h3 style="margin: 30px 0 15px; font-size: 1.2rem; font-weight: 800; border-bottom: 2px solid var(--primary-color); display: inline-block;">投稿</h3>
+  <% @posts.each do |post| %>
+    <div style="background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 12px;">
+      <p style="margin: 0 0 8px;"><%= render_with_hashtags(post.content) %></p>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <small style="color: var(--text-sub);"><%= post.created_at.strftime("%Y/%m/%d %H:%M") %></small>
+        <%= link_to "詳細", post_path(post), style: "text-decoration:none; color:var(--primary-color); font-size:0.8rem;" %>
+      </div>
     </div>
   <% end %>
-
-  <div style="background-color: #f9f9f9; padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
-    <h3 style="font-size: 1rem; border-bottom: 1px solid #ccc; padding-bottom: 5px;">自己紹介</h3>
-    <p style="white-space: pre-wrap;"><%= @user.introduction.presence || "自己紹介はまだありません。" %></p>
-  </div>
-
-  <div style="text-align: center;">
-    <% if @user == current_user %>
-      <%= link_to "プロフィールを編集する", edit_user_path(@user), style: "display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;" %>
-    <% end %>
-    <%= link_to "ホームに戻る", root_path, style: "margin-left: 15px; color: #666;" %>
-  </div>
 </div>

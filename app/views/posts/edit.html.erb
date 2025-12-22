@@ -1,23 +1,44 @@
-<div style="max-width: 600px; margin: 2rem auto; padding: 2rem; border: 1px solid #ddd; border-radius: 8px; font-family: sans-serif;">
-  <h2 style="text-align: center; margin-bottom: 2rem;">投稿を編集</h2>
+<div style="max-width: 600px; margin: 2rem auto; padding: 2.5rem; border: 1px solid #e1e8ed; border-radius: 16px; background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+  
+  <h2 style="text-align: center; color: #1c1e21; margin-bottom: 2rem; font-size: 1.5rem;">投稿を編集</h2>
 
   <%= form_with model: @post, local: true do |f| %>
+    
     <div style="margin-bottom: 1.5rem;">
-      <%= f.label :content, "内容", style: "font-weight: bold;" %><br>
-      <%= f.text_area :content, style: "width: 100%; height: 120px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-top: 10px; font-size: 1rem;" %>
+      <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: #5b7083;">内容</label>
+      <%= f.text_area :content, placeholder: "何を考えてる？", style: "width: 100%; height: 120px; padding: 12px; border: 1px solid #cfd9de; border-radius: 8px; font-size: 1rem; box-sizing: border-box; resize: vertical; outline: none;" %>
     </div>
 
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem;">
-      <div style="display: flex; align-items: center; gap: 15px;">
-        <%= f.submit "変更を保存する", style: "background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;" %>
-        <%= link_to "キャンセル", root_path, style: "color: #666; text-decoration: none; font-size: 0.9rem;" %>
-      </div>
+    <div style="margin-bottom: 2rem; padding: 1rem; background-color: #f7f9f9; border-radius: 8px;">
+      <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: #5b7083;">画像を変更</label>
+      
+      <% if @post.image.attached? %>
+        <div style="margin-bottom: 10px;">
+          <p style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">現在の画像:</p>
+          <%= image_tag @post.image, style: "max-width: 100px; border-radius: 4px; border: 1px solid #ddd;" %>
+        </div>
+      <% end %>
 
-      <%# 究極の回避策：リンク移動として削除を実行する %>
-      <%= link_to "この投稿を削除する", post_path(@post, _method: :delete), 
-                  data: { turbo: false }, 
-                  onclick: "return confirm('本当に削除しますか？')", 
-                  style: "color: #ff4d4d; font-size: 0.85rem; text-decoration: underline; cursor: pointer;" %>
+      <%= f.file_field :image, accept: "image/*", style: "font-size: 0.9rem;" %>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <%= f.submit "変更を保存する", style: "background-color: #007bff; color: white; border: none; padding: 12px; border-radius: 30px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: background-color 0.2s;" %>
+      
+      <%= link_to "キャンセル", root_path, style: "text-align: center; text-decoration: none; color: #5b7083; font-size: 0.9rem; padding: 10px;" %>
     </div>
   <% end %>
+
+  <hr style="border: 0; border-top: 1px solid #eff3f4; margin: 2rem 0;">
+
+  <div style="padding: 1.5rem; border: 1px solid #ffdada; border-radius: 8px; background-color: #fff5f5;">
+    <h3 style="color: #ff4d4d; font-size: 1rem; margin-top: 0; margin-bottom: 0.5rem;">危険な操作</h3>
+    <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">この投稿を完全に削除します。この操作は取り消せません。</p>
+    
+    <%= button_to "この投稿を削除する", post_path(@post), 
+                  method: :delete, 
+                  form: { data: { turbo: false }, style: "width: 100%;" }, 
+                  onclick: "return confirm('本当に削除しますか？')",
+                  style: "background-color: #ff4d4d; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;" %>
+  </div>
 </div>

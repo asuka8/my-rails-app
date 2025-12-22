@@ -2,35 +2,46 @@
   <div style="display: flex; gap: 15px; margin-bottom: 20px;">
     <% if @post.user.profile_image.attached? %>
       <%= image_tag @post.user.profile_image, style: "width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" %>
+    <% else %>
+      <div style="width: 50px; height: 50px; border-radius: 50%; background-color: #eee; text-align: center; line-height: 50px; color: #999; font-size: 0.8rem;">No Image</div>
     <% end %>
-    <div>
-      <strong><%= @post.user.nickname.presence || @post.user.email %></strong>
-      <p><%= @post.content %></p>
+    
+    <div style="flex: 1;">
+      <div style="display: flex; justify-content: space-between;">
+        <strong><%= @post.user.nickname.presence || @post.user.email %></strong>
+        <small style="color: #999;"><%= @post.created_at.strftime("%Y/%m/%d %H:%M") %></small>
+      </div>
+      
+      <%# ここを修正：post.content ではなく @post.content にしました %>
+      <p style="margin: 10px 0; line-height: 1.4;"><%= render_with_hashtags(@post.content) %></p>
+      
       <% if @post.image.attached? %>
-        <%= image_tag @post.image, style: "max-width: 100%; border-radius: 8px;" %>
+        <%= image_tag @post.image, style: "max-width: 100%; border-radius: 8px; border: 1px solid #eee;" %>
       <% end %>
     </div>
   </div>
 
-  <hr>
+  <hr style="border: 0; border-top: 1px solid #eee;">
 
-  <h3>コメント (<%= @post.comments.count %>)</h3>
+  <h3 style="font-size: 1.1rem; margin-top: 20px;">コメント (<%= @post.comments.count %>)</h3>
   <% @post.comments.each do |comment| %>
-    <div style="padding: 10px; border-bottom: 1px solid #eee;">
-      <strong><%= comment.user.nickname.presence || comment.user.email %></strong>
-      <p style="margin: 5px 0;"><%= comment.content %></p>
-      <small style="color: #999;"><%= comment.created_at.strftime("%Y/%m/%d %H:%M") %></small>
+    <div style="padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 10px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <strong style="font-size: 0.9rem;"><%= comment.user.nickname.presence || comment.user.email %></strong>
+        <small style="color: #ccc; font-size: 0.7rem;"><%= comment.created_at.strftime("%Y/%m/%d %H:%M") %></small>
+      </div>
+      <p style="margin: 5px 0; font-size: 0.9rem; color: #444;"><%= comment.content %></p>
     </div>
   <% end %>
 
-  <div style="margin-top: 20px;">
+  <div style="margin-top: 30px; background-color: #f9f9f9; padding: 15px; border-radius: 8px;">
     <%= form_with model: [@post, Comment.new], local: true do |f| %>
-      <%= f.text_area :content, placeholder: "コメントを書く...", style: "width: 100%; height: 60px; padding: 10px; border-radius: 4px; border: 1px solid #ccc;" %>
+      <%= f.text_area :content, placeholder: "コメントを書く...", style: "width: 100%; height: 60px; padding: 10px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; resize: none;" %>
       <div style="text-align: right; margin-top: 10px;">
-        <%= f.submit "コメントする", style: "background-color: #28a745; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;" %>
+        <%= f.submit "コメントする", style: "background-color: #28a745; color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: bold;" %>
       </div>
     <% end %>
   </div>
 
-  <%= link_to "戻る", root_path, style: "display: block; margin-top: 20px; color: #666;" %>
+  <%= link_to "ホームに戻る", root_path, style: "display: block; margin-top: 30px; text-align: center; color: #666; text-decoration: none; font-size: 0.9rem;" %>
 </div>

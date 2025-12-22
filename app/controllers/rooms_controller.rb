@@ -14,6 +14,11 @@ class RoomsController < ApplicationController
       @messages = @room.messages
       @message = Message.new
       @entries = @room.entries
+
+      # --- 既読処理を追加 ---
+      # 相手から送られてきた未読メッセージをすべて既読にする
+      @messages.where.not(user_id: current_user.id).where(checked: false).update_all(checked: true)
+      # ---------------------
     else
       redirect_back(fallback_location: root_path)
     end

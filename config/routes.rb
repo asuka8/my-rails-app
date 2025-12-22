@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   root "home#index"
   # ルーム一覧用のルート
   get 'rooms_index', to: 'rooms_index#index'
+  get 'search', to: 'searches#index'
   
   # 2. 投稿関連
   resources :posts do
@@ -17,6 +18,13 @@ Rails.application.routes.draw do
     end
     resource :likes, only: [:create, :destroy]
     resources :comments, only: [:create] # これを追記
+  end
+
+  resources :users do
+    member do
+      get :following
+      get :followers
+    end
   end
 
   # 通知一覧用のルート

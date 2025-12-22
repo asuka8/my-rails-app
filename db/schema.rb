@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_21_233042) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_22_002704) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -68,6 +68,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_21_233042) do
   end
 
   create_table "messages", force: :cascade do |t|
+    t.boolean "checked", default: false, null: false
     t.text "content"
     t.datetime "created_at", null: false
     t.integer "room_id", null: false

@@ -1,61 +1,223 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
   <head>
-    <title>MySNSApp</title>
+    <title>MySNS | Modern Social Network</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+
+    <style>
+      :root {
+        --primary-color: #1d9bf0;       /* SNSらしい爽やかな青 */
+        --bg-color: #f7f9f9;            /* 目に優しい薄いグレー */
+        --card-bg: #ffffff;
+        --border-color: #eff3f4;
+        --text-main: #0f1419;
+        --text-sub: #536471;
+        --danger-color: #f4212e;
+        --success-color: #00ba7c;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      /* 磨りガラス風のヘッダー */
+      .main-header {
+        position: sticky;
+        top: 0;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border-color);
+        z-index: 1000;
+        height: 60px;
+        display: flex;
+        align-items: center;
+      }
+
+      .header-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--primary-color);
+        text-decoration: none;
+        letter-spacing: -0.5px;
+      }
+
+      /* スタイリッシュな検索バー */
+      .search-form {
+        background: #eff3f4;
+        border-radius: 999px;
+        padding: 6px 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.2s, box-shadow 0.2s;
+      }
+      .search-form:focus-within {
+        background: #ffffff;
+        box-shadow: 0 0 0 1px var(--primary-color);
+      }
+      .search-input {
+        background: transparent;
+        border: none;
+        outline: none;
+        font-size: 0.9rem;
+        width: 180px;
+      }
+      .search-select {
+        background: transparent;
+        border: none;
+        font-size: 0.8rem;
+        color: var(--text-sub);
+        cursor: pointer;
+        outline: none;
+      }
+
+      /* ナビゲーションアイコン */
+      .nav-link {
+        text-decoration: none;
+        color: var(--text-main);
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        position: relative;
+        transition: transform 0.1s;
+      }
+      .nav-link:active { transform: scale(0.9); }
+
+      /* 通知バッジ */
+      .badge {
+        position: absolute;
+        top: -5px;
+        right: -8px;
+        background-color: var(--danger-color);
+        color: white;
+        font-size: 0.65rem;
+        font-weight: bold;
+        min-width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #fff;
+      }
+
+      .profile-circle {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid var(--border-color);
+      }
+
+      /* フラッシュメッセージ */
+      .flash {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 12px 24px;
+        border-radius: 8px;
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        z-index: 2000;
+      }
+
+      main {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding-bottom: 50px;
+      }
+    </style>
   </head>
 
-  <body style="margin: 0; padding: 0; background-color: #f5f8fa;">
-    <header style="background-color: #ffffff; border-bottom: 1px solid #ddd; padding: 10px 20px; position: sticky; top: 0; z-index: 1000;">
-      <div style="max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
-        
-        <div>
-          <%= link_to "My SNS", root_path, style: "font-size: 1.5rem; font-weight: bold; text-decoration: none; color: #007bff;" %>
-        </div>
+  <body>
+    <header class="main-header">
+      <div class="header-container">
+        <%= link_to "MySNS", root_path, class: "logo" %>
 
-        <nav style="display: flex; align-items: center; gap: 20px;">
-          <% if user_signed_in? %>
-            <%= link_to "メッセージ", rooms_index_path, style: "text-decoration: none; color: #333; font-weight: 500;" %>
+        <% if user_signed_in? %>
+          <%= form_with url: search_path, method: :get, local: true, class: "search-form" do |f| %>
+            <span style="color: var(--text-sub);">🔍</span>
+            <%= f.text_field :word, placeholder: "検索", class: "search-input" %>
+            <%= f.select :range, [['投稿', 'Post'], ['ユーザー', 'User']], {}, class: "search-select" %>
+            <%= f.submit "検索", style: "display: none;" %>
+          <% end %>
 
-            <%= link_to notifications_path, style: "text-decoration: none; color: #333; font-weight: 500; position: relative;" do %>
-              通知
-              <% if current_user.passive_notifications.where(checked: false).any? %>
-                <span style="background-color: #ff4d4d; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; position: absolute; top: -10px; right: -15px;">
-                  <%= current_user.passive_notifications.where(checked: false).count %>
-                </span>
+          <nav style="display: flex; align-items: center; gap: 24px;">
+            <%# メッセージ %>
+            <%= link_to rooms_index_path, class: "nav-link", title: "メッセージ" do %>
+              ✉️
+              <% dm_unread_count = Message.where(room_id: current_user.entries.pluck(:room_id)).where.not(user_id: current_user.id).where(checked: false).count %>
+              <% if dm_unread_count > 0 %>
+                <span class="badge" style="background-color: var(--success-color);"><%= dm_unread_count %></span>
               <% end %>
             <% end %>
 
-            <%= link_to "プロフィール", user_path(current_user), style: "text-decoration: none; color: #333; font-weight: 500;" %>
-            
-            <%= link_to "ログアウト", logout_path, style: "text-decoration: none; color: #ff4d4d; font-weight: bold;" %>
-          <% else %>
-            <%= link_to "ログイン", new_user_session_path, style: "text-decoration: none; color: #007bff;" %>
-            <%= link_to "新規登録", new_user_registration_path, style: "text-decoration: none; color: #333;" %>
-          <% end %>
-        </nav>
+            <%# 通知 %>
+            <%= link_to notifications_path, class: "nav-link", title: "通知" do %>
+              🔔
+              <% unread_notif = current_user.passive_notifications.where(checked: false).count %>
+              <% if unread_notif > 0 %>
+                <span class="badge"><%= unread_notif %></span>
+              <% end %>
+            <% end %>
+
+            <%# プロフィール %>
+            <%= link_to user_path(current_user), class: "nav-link" do %>
+              <% if current_user.profile_image.attached? %>
+                <%= image_tag current_user.profile_image, class: "profile-circle" %>
+              <% else %>
+                <div class="profile-circle" style="background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">👤</div>
+              <% end %>
+            <% end %>
+          </nav>
+        <% else %>
+          <div>
+            <%= link_to "ログイン", new_user_session_path, style: "text-decoration: none; color: var(--primary-color); font-weight: bold; margin-right: 15px;" %>
+            <%= link_to "新規登録", new_user_registration_path, style: "text-decoration: none; color: var(--text-main); font-weight: bold;" %>
+          </div>
+        <% end %>
       </div>
     </header>
 
     <% if notice %>
-      <div style="background-color: #d4edda; color: #155724; padding: 10px; text-align: center; border-bottom: 1px solid #c3e6cb;">
-        <%= notice %>
-      </div>
+      <div class="flash" style="background: var(--success-color);"><%= notice %></div>
     <% end %>
     <% if alert %>
-      <div style="background-color: #f8d7da; color: #721c24; padding: 10px; text-align: center; border-bottom: 1px solid #f5c6cb;">
-        <%= alert %>
-      </div>
+      <div class="flash" style="background: var(--danger-color);"><%= alert %></div>
     <% end %>
 
-    <main style="padding-top: 20px;">
+    <main>
       <%= yield %>
     </main>
 
+    <script>
+      // フラッシュメッセージを3秒後に消す
+      setTimeout(() => {
+        const flash = document.querySelector('.flash');
+        if (flash) flash.style.display = 'none';
+      }, 3000);
+    </script>
   </body>
 </html>

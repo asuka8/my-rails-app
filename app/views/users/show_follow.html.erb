@@ -1,0 +1,44 @@
+<div style="max-width: 600px; margin: 2rem auto; padding: 0 20px;">
+  <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+    <%= link_to user_path(@user), style: "text-decoration: none; font-size: 1.5rem;" do %>⬅️<% end %>
+    <h2 style="margin: 0; font-size: 1.2rem; font-weight: 900;">
+      <%= @user.nickname.presence || @user.email %> さんの
+      <%= action_name == 'following' ? 'フォロー中' : 'フォロワー' %>
+    </h2>
+  </div>
+
+  <div style="background: white; border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden;">
+    <% if @users.any? %>
+      <% @users.each do |user| %>
+        <%= link_to user_path(user), style: "text-decoration: none; color: inherit;" do %>
+          <div style="padding: 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); transition: background 0.2s;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <% if user.profile_image.attached? %>
+                <%= image_tag user.profile_image, style: "width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" %>
+              <% else %>
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: #e1e8ed; display: flex; align-items: center; justify-content: center; color: #999;">👤</div>
+              <% end %>
+              <div>
+                <div style="font-weight: bold;"><%= user.nickname.presence || user.email %></div>
+                <div style="font-size: 0.85rem; color: var(--text-sub); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 250px;">
+                  <%= user.introduction %>
+                </div>
+              </div>
+            </div>
+            
+            <%# 自分以外ならフォロー状態を表示（任意） %>
+            <% unless user == current_user %>
+              <div style="font-size: 0.75rem; padding: 4px 12px; border-radius: 99px; border: 1px solid var(--border-color); color: var(--text-sub);">
+                <%= current_user.following?(user) ? "フォロー中" : "未フォロー" %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+    <% else %>
+      <div style="padding: 60px 20px; text-align: center; color: var(--text-sub);">
+        <p><%= action_name == 'following' ? 'まだ誰もフォローしていません' : 'フォロワーはいません' %></p>
+      </div>
+    <% end %>
+  </div>
+</div>

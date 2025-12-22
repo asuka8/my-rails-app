@@ -1,0 +1,40 @@
+<div style="max-width: 600px; margin: 2rem auto; padding: 0 20px;">
+  <div style="margin-bottom: 20px;">
+    <h2 style="font-size: 1.2rem; font-weight: 900; margin: 0;">"<%= @word %>" の検索結果</h2>
+    <p style="color: var(--text-sub); font-size: 0.9rem; margin-top: 5px;"><%= @range == 'Post' ? '投稿' : 'ユーザー' %>から検索中</p>
+  </div>
+
+  <% if @results.any? %>
+    <% if @range == "User" %>
+      <div style="background: white; border: 1px solid var(--border-color); border-radius: 16px;">
+        <% @results.each do |user| %>
+          <%= link_to user_path(user), style: "text-decoration: none; color: inherit;" do %>
+            <div style="padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border-color);">
+              <% if user.profile_image.attached? %>
+                <%= image_tag user.profile_image, style: "width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" %>
+              <% else %>
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: #e1e8ed;"></div>
+              <% end %>
+              <span style="font-weight: bold;"><%= user.nickname.presence || user.email %></span>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <% @results.each do |post| %>
+        <div style="background: white; border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; margin-bottom: 12px;">
+          <div style="display: flex; gap: 12px; margin-bottom: 8px;">
+            <strong><%= post.user.nickname.presence || post.user.email %></strong>
+            <small style="color: var(--text-sub);"><%= post.created_at.strftime("%Y/%m/%d") %></small>
+          </div>
+          <p style="margin: 0 0 10px;"><%= render_with_hashtags(post.content) %></p>
+          <%= link_to "投稿を見る", post_path(post), style: "color: var(--primary-color); text-decoration: none; font-size: 0.85rem; font-weight: bold;" %>
+        </div>
+      <% end %>
+    <% end %>
+  <% else %>
+    <div style="text-align: center; padding: 100px 0; color: var(--text-sub);">
+      <p>一致する結果は見つかりませんでした</p>
+    </div>
+  <% end %>
+</div>
