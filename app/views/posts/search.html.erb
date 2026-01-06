@@ -1,72 +1,34 @@
-<div style="max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; border-left: 1px solid #eee; border-right: 1px solid #eee;">
-  
-  <div style="padding: 15px; border-bottom: 1px solid #eee; position: sticky; top: 0; background: white; z-index: 10;">
-    <%= form_with url: search_posts_path, method: :get, local: true do %>
-      <div style="display: flex; gap: 10px;">
-        <%# nameを確実に "keyword" に指定 %>
-        <%= text_field_tag :keyword, @keyword, placeholder: "キーワード、ユーザー名を検索", 
-            style: "flex: 1; padding: 10px 20px; border: none; border-radius: 99px; background: #eff3f4; outline: none; font-size: 1rem;" %>
-        <%= submit_tag "検索", style: "background: #1d9bf0; color: white; border: none; padding: 0 20px; border-radius: 99px; font-weight: bold; cursor: pointer;" %>
-      </div>
-    <% end %>
-  </div>
+<div style="max-width: 600px; margin: 0 auto; padding: 20px; background: white; border: 1px solid #ddd; min-height: 100vh;">
+  <h2 style="font-weight: bold;">話題を検索</h2>
+
+  <%= form_with url: search_posts_path, method: :get, local: true do %>
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+      <%= text_field_tag :keyword, params[:keyword], placeholder: "キーワードを入力", 
+          style: "flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" %>
+      <%= submit_tag "検索", style: "padding: 0 20px; cursor: pointer; background: #1da1f2; color: white; border: none; border-radius: 5px;" %>
+    </div>
+  <% end %>
 
   <% if @keyword.present? %>
+    <p style="font-size: 0.9rem; color: #666;">「<%= @keyword %>」の検索結果</p>
     
-    <div style="padding: 10px 15px; background: #f7f9f9; font-weight: bold; border-bottom: 1px solid #eee; font-size: 0.9rem; color: #536471;">ユーザー</div>
-    <% if @users.any? %>
+    <div style="margin-top: 20px;">
+      <h3 style="border-bottom: 1px solid #eee; padding-bottom: 5px;">ユーザー (<%= @users.count %>)</h3>
       <% @users.each do |user| %>
-        <%= link_to user_path(user), style: "text-decoration: none; color: inherit;" do %>
-          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-bottom: 1px solid #eee; transition: 0.2s;" onmouseover="this.style.background='#f7f9f9'" onmouseout="this.style.background='transparent'">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background: #eee; overflow: hidden;">
-              <% if user.profile_image.attached? %>
-                <%= image_tag user.profile_image, style: "width: 100%; height: 100%; object-fit: cover;" %>
-              <% end %>
-            </div>
-            <div>
-              <div style="font-weight: bold;"><%= user.nickname %></div>
-              <div style="font-size: 0.85rem; color: #536471;">@<%= user.email.split('@')[0] %></div>
-            </div>
-          </div>
-        <% end %>
-      <% end %>
-    <% else %>
-      <p style="padding: 20px; color: #536471; font-size: 0.9rem; text-align: center;">ユーザーは見つかりませんでした</p>
-    <% end %>
-
-    <div style="padding: 10px 15px; background: #f7f9f9; font-weight: bold; border-bottom: 1px solid #eee; border-top: 8px solid #eff3f4; font-size: 0.9rem; color: #536471;">投稿</div>
-    <% if @posts.any? %>
-      <% @posts.each do |post| %>
-        <div style="padding: 15px; border-bottom: 1px solid #eee; display: flex; gap: 12px;">
-          <div style="width: 48px; height: 48px; border-radius: 50%; background: #eee; overflow: hidden; flex-shrink: 0;">
-            <% if post.user.profile_image.attached? %>
-              <%= image_tag post.user.profile_image, style: "width: 100%; height: 100%; object-fit: cover;" %>
-            <% end %>
-          </div>
-          <div style="flex: 1;">
-            <div style="display: flex; gap: 5px; align-items: baseline;">
-              <span style="font-weight: bold;"><%= post.user.nickname %></span>
-              <span style="color: #536471; font-size: 0.85rem;">· <%= time_ago_in_words(post.created_at) %>前</span>
-            </div>
-            <p style="margin: 5px 0; line-height: 1.4;"><%= post.content %></p>
-            <% if post.images.attached? %>
-              <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px;">
-                <% post.images.each do |image| %>
-                  <%= image_tag image, style: "width: 100px; height: 100px; object-fit: cover; border-radius: 12px; border: 1px solid #eee;" %>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
+        <div style="padding: 10px; border-bottom: 1px solid #eee;">
+          <%= link_to user.nickname, user_path(user), style: "text-decoration: none; color: #1da1f2; font-weight: bold;" %>
         </div>
       <% end %>
-    <% else %>
-      <p style="padding: 20px; color: #536471; font-size: 0.9rem; text-align: center;">一致する投稿はありません</p>
-    <% end %>
+    </div>
 
-  <% else %>
-    <div style="padding: 100px 20px; text-align: center;">
-      <p style="font-weight: bold; font-size: 1.2rem; margin-bottom: 10px;">キーワードを入力して検索</p>
-      <p style="color: #536471;">好きなユーザーや、気になる話題を探してみましょう。</p>
+    <div style="margin-top: 20px;">
+      <h3 style="border-bottom: 1px solid #eee; padding-bottom: 5px;">投稿 (<%= @posts.count %>)</h3>
+      <% @posts.each do |post| %>
+        <div style="padding: 15px; border-bottom: 1px solid #eee;">
+          <strong><%= post.user&.nickname %></strong>
+          <p style="margin: 5px 0;"><%= post.content %></p>
+        </div>
+      <% end %>
     </div>
   <% end %>
 </div>

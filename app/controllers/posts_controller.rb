@@ -2,23 +2,42 @@ class PostsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_post, only: [:show, :edit, :update, :destroy]
 
-  # 投稿一覧（タイムラインはHomeコントローラーで処理している場合は不要なこともありますが、定義しておきます）
   def index
     @posts = Post.all.order(created_at: :desc)
   end
 
-  # 投稿詳細
   def show
   end
 
-  # 新規投稿作成
+  # --- 検索機能を private の外（上）に移動しました ---
+  def search
+    @keyword = params[:keyword].to_s.strip
+    @posts = Post.none
+    @users = User.none
+
+    if @keyword.present?
+      search_word = @keyword.unicode_normalize(:nfkc).downcase
+
+      # 全件取得してRuby側でマッチング（確実な方法）
+      found_posts = Post.all.select do |post|
+        post.content.to_s.unicode_normalize(:nfkc).downcase.include?(search_word)
+      end
+      
+      found_users = User.all.select do |user|
+        user.nickname.to_s.unicode_normalize(:nfkc).downcase.include?(search_word)
+      end
+
+      @posts = Post.where(id: found_posts.map(&:id)).order(created_at: :desc)
+      @users = User.where(id: found_users.map(&:id))
+    end
+  end
+
   def create
     @post = Post.new(content: post_params[:content])
     @post.user_id = current_user.id
 
     if @post.save
       if params[:post][:images].present?
-        # 一つずつ丁寧にアタッチする
         params[:post][:images].each do |image|
           @post.images.attach(image) if image.present?
         end
@@ -29,16 +48,13 @@ class PostsController < ApplicationController
       render "home/index", status: :unprocessable_entity
     end
   end
-  # 編集画面
+
   def edit
-    # 自分の投稿以外は編集できないようにセキュリティをかける
     redirect_to root_path, alert: "権限がありません。" unless @post.user == current_user
   end
 
-  # 更新処理
   def update
     if @post.update(content: post_params[:content])
-      # 画像を新しく追加する場合
       if params[:post][:images].present?
         clean_images = params[:post][:images].reject(&:blank?)
         @post.images.attach(clean_images) if clean_images.any?
@@ -49,20 +65,16 @@ class PostsController < ApplicationController
     end
   end
 
-  # 削除処理
   def destroy
     @post.destroy if @post.user == current_user
     redirect_to root_path, notice: "投稿を削除しました"
   end
 
-  private
-
+  # --- ここから下はクラス内部でのみ使うメソッド ---
   private
 
   def set_post
-    # IDがハッシュ形式 {id: "27"} で送られてきても、数値 "27" で送られてきても対応する
     post_id = params[:id].is_a?(Hash) ? params[:id][:id] : params[:id]
-    
     @post = Post.find_by(id: post_id)
     
     if @post.nil?
@@ -70,25 +82,7 @@ class PostsController < ApplicationController
     end
   end
 
-  def search
-    raise "ここまで処理が届いています！" # これを追記
-    # 1. フォームから送られてきたキーワードを取得
-    @keyword = params[:keyword]
-
-    if @keyword.present?
-      # 2. 投稿内容を検索（ここで SQL が発行されるはずです）
-      @posts = Post.where("content LIKE ?", "%#{@keyword}%").order(created_at: :desc)
-      
-      # 3. ついでにユーザー名も検索
-      @users = User.where("nickname LIKE ?", "%#{@keyword}%")
-    else
-      @posts = Post.none
-      @users = User.none
-    end
-  end
-  # ストロングパラメータ
   def post_params
-    # images: [] として配列を許可
     params.require(:post).permit(:content, images: [])
   end
 end
