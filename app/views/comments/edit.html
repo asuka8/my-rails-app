@@ -1,0 +1,12 @@
+<div style="max-width: 600px; margin: 2rem auto; padding: 20px; background: white; border-radius: 15px; border: 1px solid #eee;">
+  <h2 style="font-size: 1.1rem; margin-bottom: 20px;">返信を編集</h2>
+
+  <%= form_with model: [@post, @comment], local: true do |f| %>
+    <%= f.text_area :content, style: "width: 100%; min-height: 100px; border: 1px solid #eee; padding: 10px; border-radius: 10px; font-size: 1rem; outline: none; resize: none;" %>
+    
+    <div style="margin-top: 15px; display: flex; gap: 10px;">
+      <%= f.submit "更新する", style: "background: #1d9bf0; color: white; border: none; padding: 8px 20px; border-radius: 99px; font-weight: bold; cursor: pointer;" %>
+      <%= link_to "キャンセル", post_path(@post), style: "text-decoration: none; color: #666; padding: 8px 0;" %>
+    </div>
+  <% end %>
+</div>

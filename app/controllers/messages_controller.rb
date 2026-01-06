@@ -1,26 +1,41 @@
 class MessagesController < ApplicationController
-  before_action :authenticate_user!, only: [:create]
+  before_action :authenticate_user!
 
   def create
-    if Entry.where(user_id: current_user.id, room_id: params[:message][:room_id]).present?
-      @message = Message.new(params.require(:message).permit(:user_id, :content, :room_id).merge(user_id: current_user.id))
-      if @message.save
-        # --- 通知の作成 ---
-        # 部屋の自分以外のユーザー（相手）を探す
-        @room = @message.room
-        @opponent_entry = @room.entries.where.not(user_id: current_user.id).first
-        
+    # 入力された内容とルームIDを取得し、自分のIDを紐付けてインスタンス作成
+    @message = Message.new(message_params)
+    @message.user_id = current_user.id
+
+    if @message.save
+      # --- 通知作成ロジック ---
+      # ルームの参加者（自分以外）を探す
+      @room = @message.room
+      @entries = @room.entries.where.not(user_id: current_user.id)
+      
+      @entries.each do |entry|
+        # 通知を送る（相手が複数の場合にも対応可能な構造）
         notification = current_user.active_notifications.new(
-          visited_id: @opponent_entry.user_id,
-          action: 'message' # 新しいアクションタイプ
+          visited_id: entry.user_id,
+          post_id: nil, # DMなので投稿IDはなし
+          action: 'message'
         )
+        # 自分のメッセージに対する通知なので、既読でない限り保存
         notification.save if notification.valid?
-        # ------------------
-        
-        redirect_to "/rooms/#{@message.room_id}"
       end
+      # -----------------------
+
+      # 送信したチャットルームの画面にリダイレクト
+      redirect_to room_path(@message.room_id)
     else
+      # 保存に失敗した場合は元の画面に戻る
+      flash[:alert] = "メッセージの送信に失敗しました。"
       redirect_back(fallback_location: root_path)
     end
+  end
+
+  private
+
+  def message_params
+    params.require(:message).permit(:content, :room_id)
   end
 end

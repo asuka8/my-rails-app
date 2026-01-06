@@ -1,44 +1,79 @@
-<div style="max-width: 600px; margin: 2rem auto; padding: 2.5rem; border: 1px solid #e1e8ed; border-radius: 16px; background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-  
-  <h2 style="text-align: center; color: #1c1e21; margin-bottom: 2rem; font-size: 1.5rem;">投稿を編集</h2>
-
-  <%= form_with model: @post, local: true do |f| %>
-    
-    <div style="margin-bottom: 1.5rem;">
-      <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: #5b7083;">内容</label>
-      <%= f.text_area :content, placeholder: "何を考えてる？", style: "width: 100%; height: 120px; padding: 12px; border: 1px solid #cfd9de; border-radius: 8px; font-size: 1rem; box-sizing: border-box; resize: vertical; outline: none;" %>
+<div style="max-width: 600px; margin: 2rem auto; padding: 0 20px;">
+  <div class="card" style="padding: 24px;">
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 24px;">
+      <%= link_to "⬅️", :back, style: "text-decoration: none; font-size: 1.2rem; color: var(--text-main);" %>
+      <h2 style="margin: 0; font-size: 1.2rem; font-weight: 900;">投稿を編集</h2>
     </div>
 
-    <div style="margin-bottom: 2rem; padding: 1rem; background-color: #f7f9f9; border-radius: 8px;">
-      <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: #5b7083;">画像を変更</label>
-      
-      <% if @post.image.attached? %>
-        <div style="margin-bottom: 10px;">
-          <p style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">現在の画像:</p>
-          <%= image_tag @post.image, style: "max-width: 100px; border-radius: 4px; border: 1px solid #ddd;" %>
-        </div>
-      <% end %>
+    <%= form_with model: @post, local: true do |f| %>
+      <%# テキストエリア %>
+      <div style="margin-bottom: 20px;">
+        <%= f.text_area :content, 
+            style: "width: 100%; min-height: 120px; border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; font-size: 1rem; outline: none; resize: vertical;",
+            placeholder: "何を考えてる？" %>
+      </div>
 
-      <%= f.file_field :image, accept: "image/*", style: "font-size: 0.9rem;" %>
-    </div>
+      <%# 画像管理エリア %>
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-weight: bold; margin-bottom: 8px; color: var(--text-sub); font-size: 0.9rem;">
+          画像を管理（複数選択可）
+        </label>
 
-    <div style="display: flex; flex-direction: column; gap: 10px;">
-      <%= f.submit "変更を保存する", style: "background-color: #007bff; color: white; border: none; padding: 12px; border-radius: 30px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: background-color 0.2s;" %>
-      
-      <%= link_to "キャンセル", root_path, style: "text-align: center; text-decoration: none; color: #5b7083; font-size: 0.9rem; padding: 10px;" %>
-    </div>
-  <% end %>
+        <%# 現在保存されている画像の一覧 %>
+        <% if @post.images.attached? %>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; padding: 10px; background: var(--bg-color); border-radius: 12px;">
+            <% @post.images.each do |image| %>
+              <div style="position: relative;">
+                <%= image_tag image, style: "width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color);" %>
+              </div>
+            <% end %>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-sub); margin-bottom: 15px;">※新しい画像を選択すると、追加で保存されます。</p>
+        <% end %>
 
-  <hr style="border: 0; border-top: 1px solid #eff3f4; margin: 2rem 0;">
+        <%# 新しい画像を追加するためのボタン %>
+        <label style="display: inline-block; cursor: pointer; background: var(--bg-color); border: 2px dashed var(--border-color); border-radius: 12px; padding: 20px; width: 100%; text-align: center; transition: 0.2s;" 
+               onmouseover="this.style.borderColor='var(--primary-color)'" 
+               onmouseout="this.style.borderColor='var(--border-color)'">
+          <span style="color: var(--primary-color); font-weight: bold;">＋ 新しい画像を追加</span>
+          <%= f.file_field :images, multiple: true, accept: "image/*", id: "edit_post_images", style: "display: none;" %>
+        </label>
 
-  <div style="padding: 1.5rem; border: 1px solid #ffdada; border-radius: 8px; background-color: #fff5f5;">
-    <h3 style="color: #ff4d4d; font-size: 1rem; margin-top: 0; margin-bottom: 0.5rem;">危険な操作</h3>
-    <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">この投稿を完全に削除します。この操作は取り消せません。</p>
-    
-    <%= button_to "この投稿を削除する", post_path(@post), 
-                  method: :delete, 
-                  form: { data: { turbo: false }, style: "width: 100%;" }, 
-                  onclick: "return confirm('本当に削除しますか？')",
-                  style: "background-color: #ff4d4d; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;" %>
+        <%# 新しく選択した画像のプレビュー用コンテナ %>
+        <div id="edit-image-preview" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;"></div>
+      </div>
+
+      <%# ボタンエリア %>
+      <div style="display: flex; gap: 12px; margin-top: 30px;">
+        <%= f.submit "変更を保存", class: "btn-primary", style: "flex: 2; padding: 12px;" %>
+        <%= link_to "キャンセル", post_path(@post), style: "flex: 1; text-align: center; text-decoration: none; color: var(--text-sub); background: var(--bg-color); padding: 12px; border-radius: 999px; font-weight: bold; font-size: 0.95rem;" %>
+      </div>
+    <% end %>
   </div>
 </div>
+
+<script>
+  // 編集画面用の画像プレビューJavaScript
+  document.addEventListener('change', function(e) {
+    if (e.target && e.target.id === 'edit_post_images') {
+      const container = document.getElementById('edit-image-preview');
+      container.innerHTML = '';
+      const files = e.target.files;
+      
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const img = document.createElement('img');
+          img.src = event.target.result;
+          img.style.width = '70px';
+          img.style.height = '70px';
+          img.style.objectFit = 'cover';
+          img.style.borderRadius = '8px';
+          img.style.border = '2px solid var(--primary-color)';
+          container.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  });
+</script>

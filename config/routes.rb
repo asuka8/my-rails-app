@@ -10,14 +10,18 @@ Rails.application.routes.draw do
   # ルーム一覧用のルート
   get 'rooms_index', to: 'rooms_index#index'
   get 'search', to: 'searches#index'
+  get 'search/autocomplete', to: 'searches#autocomplete'
   
   # 2. 投稿関連
   resources :posts do
+    collection do
+      get 'search'
+    end
     member do
       get :liked_users
     end
     resource :likes, only: [:create, :destroy]
-    resources :comments, only: [:create] # これを追記
+    resources :comments, only: [:create, :edit, :update, :destroy] # これを追記
   end
 
   resources :users do
@@ -25,6 +29,11 @@ Rails.application.routes.draw do
       get :following
       get :followers
     end
+  end
+
+  resources :rooms, only: [:index, :show, :create] do
+    # メッセージ作成のためのネスト
+    resources :messages, only: [:create]
   end
 
   # 通知一覧用のルート

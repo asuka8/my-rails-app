@@ -1,62 +1,125 @@
-<div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-  
-  <div class="card" style="padding: 20px; margin-bottom: 20px;">
+<div style="max-width: 600px; margin: 0 auto; border-left: 1px solid #eee; border-right: 1px solid #eee; background: white; min-height: 100vh;">
+
+  <div style="padding: 20px; border-bottom: 1px solid #eee;">
     <%= form_with model: @post, local: true do |f| %>
-      <%= f.text_area :content, placeholder: "いまどうしてる？", style: "width: 100%; border: none; font-size: 1.2rem; outline: none; resize: none; min-height: 100px;" %>
-      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 15px;">
-        <%= f.file_field :image, style: "font-size: 0.8rem; color: var(--text-sub);" %>
-        <%= f.submit "投稿する", class: "btn-primary" %>
+      <div style="display: flex; gap: 10px;">
+        <% if current_user.profile_image.attached? %>
+          <%= image_tag current_user.profile_image, style: "width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" %>
+        <% end %>
+        <div style="flex: 1;">
+          <%= f.text_area :content, placeholder: "いまどうしてる？", style: "width: 100%; border: none; font-size: 1.2rem; outline: none; resize: none;" %>
+          
+          <div id="image-preview" style="display: flex; gap: 5px; margin: 10px 0;"></div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            <label style="cursor: pointer; font-size: 1.5rem;">
+              🖼️ <%= f.file_field :images, multiple: true, accept: "image/*", id: "post_images", style: "display: none;" %>
+            </label>
+            <%= f.submit "投稿する", style: "background: #1d9bf0; color: white; border: none; padding: 8px 20px; border-radius: 99px; font-weight: bold; cursor: pointer;" %>
+          </div>
+        </div>
       </div>
     <% end %>
   </div>
 
   <% @posts.each do |post| %>
-    <div class="card" style="margin-bottom: 12px; padding: 16px;">
-      <div style="display: flex; gap: 12px;">
-        <%# アイコン %>
-        <%= link_to user_path(post.user) do %>
+    <div style="padding: 15px; border-bottom: 1px solid #eee;">
+      <div style="display: flex; gap: 10px;">
+        <div style="width: 50px;">
           <% if post.user.profile_image.attached? %>
-            <%= image_tag post.user.profile_image, style: "width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" %>
-          <% else %>
-            <div style="width: 48px; height: 48px; border-radius: 50%; background: #e1e8ed;"></div>
+            <%= image_tag post.user.profile_image, style: "width: 50px; height: 50px; border-radius: 50%;" %>
           <% end %>
-        <% end %>
+        </div>
 
         <div style="flex: 1;">
           <div style="display: flex; justify-content: space-between;">
-            <span style="font-weight: bold;"><%= post.user.nickname.presence || post.user.email %></span>
-            <span style="color: var(--text-sub); font-size: 0.85rem;"><%= post.created_at.strftime("%H:%M") %></span>
+            <strong><%= post.user.nickname.presence || post.user.email %></strong>
+            <span style="color: #666; font-size: 0.8rem;"><%= time_ago_in_words(post.created_at) %>前</span>
           </div>
           
-          <p style="margin: 8px 0; font-size: 1rem;"><%= render_with_hashtags(post.content) %></p>
-          
-          <% if post.image.attached? %>
-            <%= image_tag post.image, style: "width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid var(--border-color);" %>
+          <p style="white-space: pre-wrap; margin: 5px 0;"><%= render_with_hashtags(post.content) %></p>
+
+          <% if post.images.attached? %>
+            <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px;">
+              <% post.images.each do |image| %>
+                <%= image_tag image, style: "width: 48%; height: 150px; object-fit: cover; border-radius: 10px;" %>
+              <% end %>
+            </div>
           <% end %>
 
-          <div style="display: flex; gap: 30px; margin-top: 15px; color: var(--text-sub);">
-            <%# いいね %>
-            <div style="display: flex; align-items: center; gap: 4px;">
+          <div style="display: flex; gap: 25px; margin-top: 15px; align-items: center;">
+            
+            <%# --- いいねボタン復活 --- %>
+            <div style="display: flex; align-items: center; gap: 5px;">
               <% if post.user != current_user %>
-                <%= button_to post_likes_path(post), method: post.likes.find_by(user_id: current_user.id) ? :delete : :post, form: {data: {turbo: false}}, style: "background:none; border:none; cursor:pointer; padding:0;" do %>
-                  <%= post.likes.find_by(user_id: current_user.id) ? "❤️" : "🤍" %>
+                <% if post.likes.find_by(user_id: current_user.id) %>
+                  <%= button_to post_likes_path(post), method: :delete, style: "background:none; border:none; cursor:pointer; padding:0; font-size: 1.1rem;" do %>
+                    ❤️
+                  <% end %>
+                <% else %>
+                  <%= button_to post_likes_path(post), method: :post, style: "background:none; border:none; cursor:pointer; padding:0; font-size: 1.1rem;" do %>
+                    🤍
+                  <% end %>
                 <% end %>
               <% else %>
-                ❤️
+                <span style="font-size: 1.1rem;">❤️</span>
               <% end %>
-              <span style="font-size: 0.9rem;"><%= post.likes.count %></span>
+              <span style="font-size: 0.9rem; color: #666;"><%= post.likes.count %></span>
             </div>
+
             <%# コメントリンク %>
-            <%= link_to post_path(post), style: "text-decoration:none; color:inherit; display:flex; align-items:center; gap:4px;" do %>
-              <span>💬</span> <span style="font-size: 0.9rem;"><%= post.comments.count %></span>
+            <%= link_to post_path(post), style: "text-decoration: none; color: #666; display: flex; align-items: center; gap: 5px;" do %>
+              <span style="font-size: 1.1rem;">💬</span>
+              <span style="font-size: 0.9rem;"><%= post.comments.count %></span>
             <% end %>
-            <%# 編集（自分の投稿のみ） %>
+            
+            <%# 自分の投稿の場合のみ「編集・削除」 %>
             <% if post.user == current_user %>
-              <%= link_to "編集", edit_post_path(post), style: "text-decoration:none; color: var(--primary-color); font-size: 0.85rem;" %>
+              <%= link_to "編集", edit_post_path(post), style: "text-decoration: none; color: #1d9bf0; font-size: 0.9rem; margin-left: 10px;" %>
+              
+              <%= link_to "削除", post_path(post), 
+                  data: { turbo_method: :delete, turbo_confirm: "本当に削除しますか？" }, 
+                  style: "text-decoration: none; color: #f4212e; font-size: 0.9rem;" %>
             <% end %>
+
           </div>
         </div>
       </div>
     </div>
   <% end %>
 </div>
+
+<script>
+  // turbo:load を使う場合、以前のリスナーが残ることがあるため、
+  // 処理を一度だけ実行するように関数を定義します。
+  (function() {
+    const previewImages = function(e) {
+      const container = document.getElementById('image-preview');
+      if (!container) return;
+
+      container.innerHTML = ''; // プレビューエリアをリセット
+      const files = e.target.files;
+      
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const img = document.createElement('img');
+          img.src = event.target.result;
+          img.style = "width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;";
+          container.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+    };
+
+    // ページ遷移のたびに実行される処理
+    document.addEventListener("turbo:load", function() {
+      const fileInput = document.getElementById('post_images');
+      if (fileInput) {
+        // 二重登録を防ぐため、一度削除してから登録する
+        fileInput.removeEventListener('change', previewImages);
+        fileInput.addEventListener('change', previewImages);
+      }
+    });
+  })();
+</script>

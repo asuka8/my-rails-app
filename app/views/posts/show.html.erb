@@ -1,47 +1,67 @@
-<div style="max-width: 600px; margin: 2rem auto; padding: 2rem; border: 1px solid #ddd; border-radius: 8px; font-family: sans-serif;">
-  <div style="display: flex; gap: 15px; margin-bottom: 20px;">
-    <% if @post.user.profile_image.attached? %>
-      <%= image_tag @post.user.profile_image, style: "width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" %>
-    <% else %>
-      <div style="width: 50px; height: 50px; border-radius: 50%; background-color: #eee; text-align: center; line-height: 50px; color: #999; font-size: 0.8rem;">No Image</div>
-    <% end %>
-    
-    <div style="flex: 1;">
-      <div style="display: flex; justify-content: space-between;">
-        <strong><%= @post.user.nickname.presence || @post.user.email %></strong>
-        <small style="color: #999;"><%= @post.created_at.strftime("%Y/%m/%d %H:%M") %></small>
-      </div>
-      
-      <%# ここを修正：post.content ではなく @post.content にしました %>
-      <p style="margin: 10px 0; line-height: 1.4;"><%= render_with_hashtags(@post.content) %></p>
-      
-      <% if @post.image.attached? %>
-        <%= image_tag @post.image, style: "max-width: 100%; border-radius: 8px; border: 1px solid #eee;" %>
+<div style="max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; border-left: 1px solid #eee; border-right: 1px solid #eee;">
+  
+  <div style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 20px;">
+    <%= link_to "⬅️", root_path, style: "text-decoration: none; color: black;" %>
+    <h2 style="margin: 0; font-size: 1.1rem;">投稿</h2>
+  </div>
+
+  <%# 投稿本体 %>
+  <div style="padding: 20px; border-bottom: 8px solid #f7f9f9;">
+    <div style="display: flex; gap: 12px; margin-bottom: 15px;">
+      <% if @post.user.profile_image.attached? %>
+        <%= image_tag @post.user.profile_image, style: "width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" %>
       <% end %>
-    </div>
-  </div>
-
-  <hr style="border: 0; border-top: 1px solid #eee;">
-
-  <h3 style="font-size: 1.1rem; margin-top: 20px;">コメント (<%= @post.comments.count %>)</h3>
-  <% @post.comments.each do |comment| %>
-    <div style="padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 10px;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <strong style="font-size: 0.9rem;"><%= comment.user.nickname.presence || comment.user.email %></strong>
-        <small style="color: #ccc; font-size: 0.7rem;"><%= comment.created_at.strftime("%Y/%m/%d %H:%M") %></small>
+      <div>
+        <div style="font-weight: bold;"><%= @post.user.nickname.presence || @post.user.email %></div>
+        <div style="font-size: 0.85rem; color: #666;"><%= @post.created_at.strftime("%Y/%m/%d %H:%M") %></div>
       </div>
-      <p style="margin: 5px 0; font-size: 0.9rem; color: #444;"><%= comment.content %></p>
     </div>
-  <% end %>
-
-  <div style="margin-top: 30px; background-color: #f9f9f9; padding: 15px; border-radius: 8px;">
-    <%= form_with model: [@post, Comment.new], local: true do |f| %>
-      <%= f.text_area :content, placeholder: "コメントを書く...", style: "width: 100%; height: 60px; padding: 10px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; resize: none;" %>
-      <div style="text-align: right; margin-top: 10px;">
-        <%= f.submit "コメントする", style: "background-color: #28a745; color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: bold;" %>
+    <p style="font-size: 1.2rem; line-height: 1.4; white-space: pre-wrap;"><%= render_with_hashtags(@post.content) %></p>
+    
+    <% if @post.images.attached? %>
+      <div style="margin-top: 15px;">
+        <% @post.images.each do |image| %>
+          <%= image_tag image, style: "width: 100%; border-radius: 15px; margin-bottom: 5px; border: 1px solid #eee;" %>
+        <% end %>
       </div>
     <% end %>
   </div>
 
-  <%= link_to "ホームに戻る", root_path, style: "display: block; margin-top: 30px; text-align: center; color: #666; text-decoration: none; font-size: 0.9rem;" %>
+  <%# 返信フォーム %>
+  <div style="padding: 15px 20px; border-bottom: 1px solid #eee;">
+    <%= form_with model: [@post, Comment.new], local: true do |f| %>
+      <div style="display: flex; gap: 10px;">
+        <%= f.text_area :content, placeholder: "返信をツイート", style: "flex: 1; border: none; font-size: 1.1rem; outline: none; resize: none; min-height: 60px;" %>
+        <%= f.submit "返信", style: "background: #1d9bf0; color: white; border: none; padding: 0 20px; border-radius: 99px; font-weight: bold; height: 36px; cursor: pointer;" %>
+      </div>
+    <% end %>
+  </div>
+
+  <%# 返信（コメント）一覧 %>
+  <div id="comments">
+    <% @post.comments.each do |comment| %>
+      <div style="padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; gap: 12px;">
+        <div style="width: 40px; height: 40px; border-radius: 50%; background: #eee;">
+          <% if comment.user.profile_image.attached? %>
+            <%= image_tag comment.user.profile_image, style: "width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" %>
+          <% end %>
+        </div>
+        <div style="flex: 1;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="font-weight: bold; font-size: 0.9rem;"><%= comment.user.nickname.presence || comment.user.email %></span>
+            <span style="font-size: 0.8rem; color: #666;"><%= time_ago_in_words(comment.created_at) %>前</span>
+          </div>
+          <p style="margin: 5px 0; font-size: 1rem;"><%= comment.content %></p>
+
+          <%# 返信の操作ボタン %>
+          <% if comment.user == current_user %>
+            <div style="display: flex; gap: 15px; margin-top: 5px;">
+              <%= link_to "編集", edit_post_comment_path(@post, comment), style: "font-size: 0.8rem; color: #1d9bf0; text-decoration: none;" %>
+              <%= link_to "削除", post_comment_path(@post, comment), data: { turbo_method: :delete, turbo_confirm: "返信を削除しますか？" }, style: "font-size: 0.8rem; color: #f4212e; text-decoration: none;" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
 </div>
